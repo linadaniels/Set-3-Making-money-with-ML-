@@ -32,26 +32,28 @@ test <- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/te
 train<- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/train.Rds")
 
 ##class
-house<- train
-class(house)
-skim(house)
-leaflet() %>% addTiles() %>% addCircleMarkers(data=house)
-house <- house %>% 
+train
+trainc<-train
+#train1<-train[sample(nrow(train),size=)]
+class(train)
+skim(train)
+leaflet() %>% addTiles() %>% addCircleMarkers(data=train)
+train <- train %>% 
   mutate(new_surface = str_extract(string=description , pattern= x))
-table(house$new_surface) %>% sort() %>% head()
+table(train$new_surface) %>% sort() %>% head()
 x1 <- "[:space:]+[:digit:]+[:space:]+"
 x2 <- "[:space:]+[:digit:]+[:punct:]+[:digit:]+[:space:]+"
-house$new_surface <- NA
+train$new_surface <- NA
 for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2")){
-  house <- house %>% 
+  train <- train %>% 
     mutate(new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x1,i)),new_surface),
            new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface))
 }
 
 for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2"," ","\n\n")){
-  house$new_surface <- gsub(i,"",house$new_surface)
+  train$new_surface <- gsub(i,"",house$new_surface)
 }
 
-house$new_surface <- gsub(",",".",house$new_surface)
-house$new_surface <- as.numeric(house$new_surface)
+train$new_surface <- gsub(",",".",train$new_surface)
+train$new_surface <- as.numeric(train$new_surface)
 
