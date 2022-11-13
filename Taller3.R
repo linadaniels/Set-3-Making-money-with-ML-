@@ -34,10 +34,10 @@ train<- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/tr
 ##class
 train
 trainc<-train
-#train1<-train[sample(nrow(train),size=)]
 class(train)
 skim(train)
 leaflet() %>% addTiles() %>% addCircleMarkers(data=train)
+x <- "[:space:]+[:digit:]+[:space:]+mts"
 train <- train %>% 
   mutate(new_surface = str_extract(string=description , pattern= x))
 table(train$new_surface) %>% sort() %>% head()
@@ -56,6 +56,16 @@ for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2"," ","\n\n")
 
 train$new_surface <- gsub(",",".",train$new_surface)
 train$new_surface <- as.numeric(train$new_surface)
+## replace surfare var
+table(is.na(train$surface_total))
+house$surface_total <- ifelse(is.na(train$surface_total),train$surface_covered,train$surface_total)
+table(is.na(train$surface_total))
+train$surface_total <- ifelse(is.na(train$surface_total),train$new_surface,train$surface_total)
+table(is.na(train$surface_total))
+
+
+
+
 
 #dataframe to sf
 train <- st_as_sf(x = train, ## datos
