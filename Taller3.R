@@ -37,6 +37,7 @@ trainc<-train
 class(train)
 skim(train)
 leaflet() %>% addTiles() %>% addCircleMarkers(data=train)
+str_to_lower(string = train$description)
 x <- "[:space:]+[:digit:]+[:space:]+mts"
 train <- train %>% 
   mutate(new_surface = str_extract(string=description , pattern= x))
@@ -51,7 +52,7 @@ for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2")){
 }
 
 for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2"," ","\n\n")){
-  train$new_surface <- gsub(i,"",house$new_surface)
+  train$new_surface <- gsub(i,"",train$new_surface)
 }
 
 train$new_surface <- gsub(",",".",train$new_surface)
