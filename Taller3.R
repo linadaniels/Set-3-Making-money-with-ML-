@@ -23,7 +23,7 @@ require(pacman)
 p_load(tidyverse,rio,skimr,viridis,
        gstat, ## variogram
        sf, ## leer/escribir/manipular datos espaciales
-       leaflet, ## Visualizaciones dinámicas
+       leaflet, ## Visualizaciones din?micas
        nngeo, ## st_nn function
        spdep, ## Construct neighbours list from polygon list 
        osmdata) ## Get OSM's data
@@ -69,28 +69,28 @@ test <- st_as_sf(x = test, ## datos
 
 leaflet() %>% addTiles() %>% addCircles(data=train)
 
-#dividir bogotá y Medellín
+#dividir bogot? y Medell?n
 
 train_bog <- train %>% 
-  subset(city == "Bogotá D.C")
+  subset(city == "Bogot? D.C")
 
 train_med <- train %>% 
-  subset(city == "Medellín")
+  subset(city == "Medell?n")
 
 #Distancias####
 
 #cbd
-#Bogotá
-bog_cbd <- geocode_OSM("Bolsa de Valores de Colombia, Bogotá", as.sf = T)
+#Bogot?
+bog_cbd <- geocode_OSM("Bolsa de Valores de Colombia, Bogot?", as.sf = T)
 leaflet() %>% addTiles() %>% addCircles(data = bog_cbd)
 
-#Medellín
-med_cbd <- geocode_OSM("Milla de Oro, Medellín", as.sf = T)
+#Medell?n
+med_cbd <- geocode_OSM("Milla de Oro, Medell?n", as.sf = T)
 leaflet() %>% addTiles() %>% addCircles(data = med_cbd)
 #Distancias
-#Bogotá
+#Bogot?
 train_bog$dist_cbd <- st_distance(x=train_bog , y=bog_cbd)
-#Medellín
+#Medell?n
 train_med$dist_cbd <- st_distance(x=train_med , y=med_cbd)
 
 #Explorar OSM
@@ -101,10 +101,10 @@ available_tags("shop")
 available_tags("amenity")
 
 
-#Transporte público
-#Bogotá
+#Transporte p?blico
+#Bogot?
 # objeto osm
-osm = opq(bbox = getbb("Bogotá Colombia")) %>%
+osm = opq(bbox = getbb("Bogot? Colombia")) %>%
   add_osm_feature(key="amenity" , value="bus_station") 
 class(osm)
 # extraer Simple Features Collection
@@ -119,9 +119,9 @@ leaflet() %>% addTiles() %>% addCircleMarkers(data=bus_station_bog , col="red")
 matrix_dist_bus_bog <- st_distance(x=train_bog , y=bus_station_bog)
 min_dist_bus_bog <- apply(matrix_dist_bus_bog , 1 , min)
 
-#Medellín
+#Medell?n
 # objeto osm
-osm = opq(bbox = getbb("Medellín Colombia")) %>%
+osm = opq(bbox = getbb("Medell?n Colombia")) %>%
   add_osm_feature(key="amenity" , value="bus_station") 
 class(osm)
 # extraer Simple Features Collection
@@ -137,9 +137,9 @@ matrix_dist_bus_med <- st_distance(x=train_med , y=bus_station_med)
 min_dist_bus_med <- apply(matrix_dist_bus_med , 1 , min)
 
 #Centros comerciales
-#Bogotá
+#Bogot?
 # objeto osm
-osm = opq(bbox = getbb("Bogotá Colombia")) %>%
+osm = opq(bbox = getbb("Bogot? Colombia")) %>%
   add_osm_feature(key="shop" , value="mall") 
 class(osm)
 
@@ -156,9 +156,9 @@ leaflet() %>% addTiles() %>% addCircleMarkers(data=mall_bog , col="red")
 matrix_mall_bog <- st_distance(x=train_bog , y=mall_bog)
 min_mall_bog <- apply(matrix_mall_bog , 1 , min)
 
-#Medellín
+#Medell?n
 # objeto osm
-osm = opq(bbox = getbb("Medellín Colombia")) %>%
+osm = opq(bbox = getbb("Medell?n Colombia")) %>%
   add_osm_feature(key="shop" , value="mall") 
 class(osm)
 
@@ -179,9 +179,9 @@ min_mall_med <- apply(matrix_mall_med , 1 , min)
 
 
 #Supermercados
-#Bogotá
+#Bogot?
 # objeto osm
-osm = opq(bbox = getbb("Bogotá Colombia")) %>%
+osm = opq(bbox = getbb("Bogot? Colombia")) %>%
   add_osm_feature(key="shop" , value="supermarket") 
 class(osm)
 
@@ -201,9 +201,9 @@ matrix_supermarket_bog <- st_distance(x=train_bog , y=supermarket_bog)
 min_supermarket_bog <- apply(matrix_supermarket_bog , 1 , min)
 
 
-#Medellín
+#Medell?n
 # objeto osm
-osm = opq(bbox = getbb("Medellín Colombia")) %>%
+osm = opq(bbox = getbb("Medell?n Colombia")) %>%
   add_osm_feature(key="shop" , value="supermarket") 
 class(osm)
 
@@ -225,8 +225,8 @@ min_supermarket_med <- apply(matrix_supermarket_med , 1 , min)
 
 #Parques
 ## parques
-#Medellín
-parques_med <- opq(bbox = getbb("Medellín Colombia")) %>%
+#Medell?n
+parques_med <- opq(bbox = getbb("Medell?n Colombia")) %>%
   add_osm_feature(key = "leisure", value = "park") %>%
   osmdata_sf() %>% .$osm_polygons %>% select(osm_id,name)
 
@@ -236,7 +236,7 @@ leaflet() %>% addTiles() %>% addPolygons(data=parques_med)
 matrix_dist_parque_med <- st_distance(x=train_med , y=parques_med)
 min_dist_parque_med <- apply(matrix_dist_parque_med , 1 , min)
 
-#Bogotá
+#Bogot?
 parques_bog <- opq(bbox = getbb("Bogota Colombia")) %>%
   add_osm_feature(key = "leisure", value = "park") %>%
   osmdata_sf() %>% .$osm_polygons %>% select(osm_id,name)
@@ -270,7 +270,7 @@ leaflet() %>% addTiles() %>% addCircles(data = cal_cbd)
 
 test$dist_cbd <- st_distance(x=test , y=cal_cbd)
 
-#Transporte público
+#Transporte p?blico
 #Cali
 # objeto osm
 osm = opq(bbox = getbb("Cali Colombia")) %>%
@@ -349,3 +349,12 @@ test$dist_bus = min_dist_bus_cal
 test$dist_parque = min_dist_parque_cal
 test$dist_mall = min_mall_cal
 test$dist_supermarket = min_supermarket_cal
+
+
+###       Estadisticas descriptivas test
+#str_test<-str(te_hog_d)
+#sumtable(te_hog_d)
+#       exportamos
+#data(te_hog_d)
+#sumtable(te_hog_d)
+#vartable <- vtable(te_hog_d,out='return')
