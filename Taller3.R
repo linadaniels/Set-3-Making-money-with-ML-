@@ -258,3 +258,94 @@ train_bog$dist_supermarket = min_supermarket_bog
 train_med$dist_supermarket = min_supermarket_med
 
 train_final <- rbind(train_bog, train_med) 
+
+#Test####
+leaflet() %>% addTiles() %>% addCircles(data=test)
+
+
+#cbd
+#Cali
+cal_cbd <- geocode_OSM("CAM, Cali", as.sf = T)
+leaflet() %>% addTiles() %>% addCircles(data = cal_cbd)
+
+test$dist_cbd <- st_distance(x=test , y=cal_cbd)
+
+#Transporte público
+#Cali
+# objeto osm
+osm = opq(bbox = getbb("Cali Colombia")) %>%
+  add_osm_feature(key="amenity" , value="bus_station") 
+class(osm)
+# extraer Simple Features Collection
+osm_sf = osm %>% osmdata_sf()
+osm_sf
+# Obtener un objeto sf
+bus_station_cal = osm_sf$osm_points %>% select(osm_id,amenity) 
+bus_station_cal
+# Pintar las estaciones de autobus
+leaflet() %>% addTiles() %>% addCircleMarkers(data=bus_station_cal , col="red")
+# Distancia
+matrix_dist_bus_cal <- st_distance(x=test , y=bus_station_cal)
+min_dist_bus_cal <- apply(matrix_dist_bus_cal , 1 , min)
+
+
+#Centros comerciales
+#Cali
+# objeto osm
+osm = opq(bbox = getbb("Cali Colombia")) %>%
+  add_osm_feature(key="shop" , value="mall") 
+class(osm)
+
+# extraer Simple Features Collection
+osm_sf = osm %>% osmdata_sf()
+osm_sf
+
+# Obtener un objeto sf
+mall_cal = osm_sf$osm_points %>% select(osm_id, shop) 
+mall_cal
+# Pintar los centros comerciales
+leaflet() %>% addTiles() %>% addCircleMarkers(data=mall_cal , col="red")
+#Distancia
+matrix_mall_cal <- st_distance(x=test , y=mall_cal)
+min_mall_cal <- apply(matrix_mall_cal , 1 , min)
+
+
+#Supermercados
+#Cali
+# objeto osm
+osm = opq(bbox = getbb("Cali Colombia")) %>%
+  add_osm_feature(key="shop" , value="supermarket") 
+class(osm)
+
+# extraer Simple Features Collection
+osm_sf = osm %>% osmdata_sf()
+osm_sf
+
+# Obtener un objeto sf
+supermarket_cal = osm_sf$osm_points %>% select(osm_id, shop) 
+supermarket_cal
+
+# Pintar los supermercados
+leaflet() %>% addTiles() %>% addCircleMarkers(data=supermarket_cal , col="red")
+
+#Distancia
+matrix_supermarket_cal <- st_distance(x=test , y=supermarket_cal)
+min_supermarket_cal <- apply(matrix_supermarket_cal , 1 , min)
+
+#Parques
+#Cali
+parques_cal <- opq(bbox = getbb("Cali Colombia")) %>%
+  add_osm_feature(key = "leisure", value = "park") %>%
+  osmdata_sf() %>% .$osm_polygons %>% select(osm_id,name)
+
+leaflet() %>% addTiles() %>% addPolygons(data=parques_cal)
+
+# Distancia
+matrix_dist_parque_cal <- st_distance(x=test , y=parques_cal)
+min_dist_parque_cal <- apply(matrix_dist_parque_cal , 1 , min)
+
+#Unimos todo
+test$dist_bus = min_dist_bus_cal
+test$dist_parque = min_dist_parque_cal
+test$dist_mall = min_mall_cal
+test$dist_supermarket = min_supermarket_cal
