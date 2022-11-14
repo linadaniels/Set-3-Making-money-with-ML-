@@ -81,9 +81,9 @@ for (i in c("baño","baños","bano","banos","tocadores"," ","\n\n")){
   train$new_bathroom <- gsub(i,"",train$new_bathroom)
 }
 ## replace bathroom var
-table(is.na(train$bathroom))
-house$bathroom <- ifelse(is.na(train$bathroom),train$new_bathroom,train$bathroom)
-table(is.na(train$bathroom))
+table(is.na(train$bathrooms))
+house$bathroom <- ifelse(is.na(train$bathrooms),train$new_bathroom,train$bathrooms)
+table(is.na(train$bathrooms))
 
 ###       VECINOS ESPACIALES
 ## train MGN
