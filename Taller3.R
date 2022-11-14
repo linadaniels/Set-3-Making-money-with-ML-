@@ -91,22 +91,28 @@ mnz
 leaflet() %>% addTiles() %>% 
   addPolygons(data=mnz , col="red") 
 ## unir dos conjuntos de datos basados en la geometría
-house <- st_join(x=house , y=mnz)
-
+join=st_nearest_feature
+house <- st_as_sf( x=train,
+                   coords=c("lon","lat"),
+                   crs=4326)
+class(house)
+class(mnz)
+house <- st_join(x=house, y=mnz)
 house %>% select(rooms,bedrooms,bathrooms,surface_total,MANZ_CCNCT)
-## Veamos la intuición primero
+
+# intucion
 new_house <- house[st_buffer(house[100,],200),]
 new_mnz <- mnz[new_house,]
 
 leaflet() %>% addTiles() %>%
-  addPolygons(data=new_mnz,col="red") %>%
+  addPolygons(data=new_mnz,col="purple") %>%
   addCircles(data=new_house)
 ## unir dos conjuntos de datos basados en la distancia
 new_house <- st_join(x=new_house , y=new_mnz , join=st_nn , maxdist=20 , k=1 , progress=F)
 new_house %>% select(MANZ_CCNCT.x,MANZ_CCNCT.y)
 
 leaflet() %>% addTiles() %>% 
-  addPolygons(data=new_mnz , col="red" , label=new_mnz$MANZ_CCNCT) %>% 
+  addPolygons(data=new_mnz , col="purple" , label=new_mnz$MANZ_CCNCT) %>% 
   addCircles(data=new_house , label=new_house$MANZ_CCNCT.y)
 ## construir covariables
 house <- house %>% group_by() %>%
@@ -119,8 +125,10 @@ table(is.na(house$surface_total))
 
 ###       Censo
 ## load data
-censo <- import("input/mnz_censo_2018.rds")
-censo
+censoant <- import("input/mnz_censo_2018.rds")
+censobog <- import("input/mnz_censo_2018.rds")
+censovalle <- import("input/mnz_censo_2018.rds")
+censo <- merge(censoant, merge(censobog, censovalle))
 ## construir covariables
 house <- left_join(house,censo,by=c("MANZ_CCNCT"="COD_DANE_ANM"))
 
@@ -146,11 +154,7 @@ leaflet() %>% addTiles() %>%
 new_house$rooms[32]
 new_house$rooms[nb_house[[32]]]
 
-
-
-
-
-#########################3
+#########################
 #dataframe to sf
 train <- st_as_sf(x = train, ## datos
                   coords=c("lon","lat"), ## coordenadas
