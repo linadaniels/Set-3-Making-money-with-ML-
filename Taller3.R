@@ -64,6 +64,24 @@ table(is.na(train$surface_total))
 train$surface_total <- ifelse(is.na(train$surface_total),train$new_surface,train$surface_total)
 table(is.na(train$surface_total))
 
+#ahora para los baños
+
+train$new_bathroom <- NA
+for (i in c("baño","baños","bano","banos","tocadores")){
+  train <- train %>% 
+    mutate(new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x1,i)),new_surface),
+           new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface),
+           new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x3,i)),new_surface)
+    )
+}
+
+for (i in c("baño","baños","bano","banos","tocadores"," ","\n\n")){
+  train$new_bathroom <- gsub(i,"",train$new_bathroom)
+}
+## replace bathroom var
+table(is.na(train$bathroom))
+house$bathroom <- ifelse(is.na(train$bathroom),train$new_bathroom,train$bathroom)
+table(is.na(train$bathroom))
 
 
 
