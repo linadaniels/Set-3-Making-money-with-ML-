@@ -84,7 +84,7 @@ house$bathroom <- ifelse(is.na(train$bathroom),train$new_bathroom,train$bathroom
 table(is.na(train$bathroom))
 
 ###       VECINOS ESPACIALES
-##MGN
+## train MGN
 # cargar manzanas
 mnz <- st_read("input/mgn/MGN_URB_MANZANA.shp") %>% select(MANZ_CCNCT) %>% .[,]
 mnz
@@ -120,7 +120,7 @@ train <- train %>% group_by() %>%
 
 train %>% select(MANZ_CCNCT,surface_mnz,surface_total)
 table(is.na(train$surface_total))
-train$surface_total <- ifelse(is.na(house$surface_total),teain$surface_mnz,train$surface_total)
+train$surface_total <- ifelse(is.na(house$surface_total),train$surface_mnz,train$surface_total)
 table(is.na(train$surface_total))
 
 ###CENSO
@@ -144,6 +144,46 @@ new_train_sp <- new_train %>% st_buffer(20) %>% as_Spatial() # poligonos
 nb_train = poly2nb(pl=new_train_sp , queen=T) # opcion reina
 ## vecinos del inmueble 32
 #nb_house[[32]]
+
+## test MGN
+## unir dos conjuntos de datos basados en la geometría
+join=st_nearest_feature
+test <- st_as_sf( x=test,
+                   coords=c("lon","lat"),
+                   crs=4326)
+class(test)
+class(mnz)
+test <- st_join(x=train, y=mnz)
+test %>% select(rooms,bedrooms,bathrooms,surface_total,MANZ_CCNCT)
+
+# intucion
+new_test <- test[st_buffer(test[100,],200),]
+new_mnz_te <- mnz[new_test,]
+
+leaflet() %>% addTiles() %>%
+  addPolygons(data=new_mnz_te,col="purple") %>%
+  addCircles(data=new_test)
+## unir dos conjuntos de datos basados en la distancia
+new_test <- st_join(x=new_test , y=new_mnz_te , join=st_nn , maxdist=20 , k=1 , progress=F)
+new_test %>% select(MANZ_CCNCT.x,MANZ_CCNCT.y)
+
+leaflet() %>% addTiles() %>% 
+  addPolygons(data=new_mnz_te , col="purple" , label=new_mnz_te$MANZ_CCNCT) %>% 
+  addCircles(data=new_test , label=new_test$MANZ_CCNCT.y)
+## construir covariables
+test <- test %>% group_by() %>%
+  mutate(surface_mnz=mean(surface_total,na.rm=T)) %>% ungroup()
+
+test %>% select(MANZ_CCNCT,surface_mnz,surface_total)
+table(is.na(test$surface_total))
+test$surface_total <- ifelse(is.na(house$surface_total),test$surface_mnz,test$surface_total)
+table(is.na(test$surface_total))
+
+
+## obtener objeto sp
+new_test_sp <- new_test %>% st_buffer(20) %>% as_Spatial() # poligonos
+## obtener vecinos
+nb_test = poly2nb(pl=new_test_sp , queen=T) # opcion reina
 
 
 
