@@ -44,11 +44,13 @@ train <- train %>%
 table(train$new_surface) %>% sort() %>% head()
 x1 <- "[:space:]+[:digit:]+[:space:]+"
 x2 <- "[:space:]+[:digit:]+[:punct:]+[:digit:]+[:space:]+"
+x3 <- "[:space:]+[:digit:]+"
 train$new_surface <- NA
 for (i in c("mts","m2","mt2","mts2","metros","cuadrado","mtro","mtr2")){
   train <- train %>% 
     mutate(new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x1,i)),new_surface),
-           new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface))
+           new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface),
+           new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x3,i)),new_surface))
 }
 
 for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2"," ","\n\n")){
@@ -64,10 +66,10 @@ table(is.na(train$surface_total))
 train$surface_total <- ifelse(is.na(train$surface_total),train$new_surface,train$surface_total)
 table(is.na(train$surface_total))
 
-#ahora para los ba?os
+#ahora para los baños
 
 train$new_bathroom <- NA
-for (i in c("ba?o","ba?os","bano","banos","tocadores")){
+for (i in c("baño","baños","bano","banos","tocadores")){
   train <- train %>% 
     mutate(new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x1,i)),new_surface),
            new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface),
@@ -75,7 +77,7 @@ for (i in c("ba?o","ba?os","bano","banos","tocadores")){
     )
 }
 
-for (i in c("ba?o","ba?os","bano","banos","tocadores"," ","\n\n")){
+for (i in c("baño","baños","bano","banos","tocadores"," ","\n\n")){
   train$new_bathroom <- gsub(i,"",train$new_bathroom)
 }
 ## replace bathroom var
