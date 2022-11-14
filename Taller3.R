@@ -380,23 +380,6 @@ test$dist_mall = min_mall_cal
 test$dist_supermarket = min_supermarket_cal
 
 
-##   vecinos espaciales
-
-## obtener objeto sp
-#new_house_sp <- new_house %>% st_buffer(20) %>% as_Spatial() # poligonos
-## obtener vecinos
-#nb_house = poly2nb(pl=new_house_sp , queen=T) # opcion reina
-## vecinos del inmueble 32
-#nb_house[[32]]
-## visualizar
-#leaflet() %>% addTiles() %>% 
-#  addCircles(data=new_house[32,],col="red") %>% 
-#  addCircles(data=new_house[nb_house[[32]],])
-## rooms
-new_house$rooms[32]
-new_house$rooms[nb_house[[32]]]
-
-
 ###       Estadisticas descriptivas test
 #str_test<-str(te_hog_d)
 #sumtable(te_hog_d)
