@@ -123,8 +123,8 @@ table(is.na(house$surface_total))
 house$surface_total <- ifelse(is.na(house$surface_total),house$surface_mnz,house$surface_total)
 table(is.na(house$surface_total))
 
-###       Censo
-## load data
+###CENSO
+##datos
 censoant <- import("input/mnz_censo_2018.rds")
 censobog <- import("input/mnz_censo_2018.rds")
 censovalle <- import("input/mnz_censo_2018.rds")
