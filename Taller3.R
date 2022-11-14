@@ -92,36 +92,36 @@ leaflet() %>% addTiles() %>%
   addPolygons(data=mnz , col="red") 
 ## unir dos conjuntos de datos basados en la geometría
 join=st_nearest_feature
-house <- st_as_sf( x=train,
+train <- st_as_sf( x=train,
                    coords=c("lon","lat"),
                    crs=4326)
-class(house)
+class(train)
 class(mnz)
-house <- st_join(x=house, y=mnz)
-house %>% select(rooms,bedrooms,bathrooms,surface_total,MANZ_CCNCT)
+train <- st_join(x=train, y=mnz)
+train %>% select(rooms,bedrooms,bathrooms,surface_total,MANZ_CCNCT)
 
 # intucion
-new_house <- house[st_buffer(house[100,],200),]
-new_mnz <- mnz[new_house,]
+new_train <- train[st_buffer(train[100,],200),]
+new_mnz <- mnz[new_train,]
 
 leaflet() %>% addTiles() %>%
   addPolygons(data=new_mnz,col="purple") %>%
-  addCircles(data=new_house)
+  addCircles(data=new_train)
 ## unir dos conjuntos de datos basados en la distancia
-new_house <- st_join(x=new_house , y=new_mnz , join=st_nn , maxdist=20 , k=1 , progress=F)
-new_house %>% select(MANZ_CCNCT.x,MANZ_CCNCT.y)
+new_train <- st_join(x=new_train , y=new_mnz , join=st_nn , maxdist=20 , k=1 , progress=F)
+new_train %>% select(MANZ_CCNCT.x,MANZ_CCNCT.y)
 
 leaflet() %>% addTiles() %>% 
   addPolygons(data=new_mnz , col="purple" , label=new_mnz$MANZ_CCNCT) %>% 
-  addCircles(data=new_house , label=new_house$MANZ_CCNCT.y)
+  addCircles(data=new_train , label=new_train$MANZ_CCNCT.y)
 ## construir covariables
-house <- house %>% group_by() %>%
+train <- train %>% group_by() %>%
   mutate(surface_mnz=mean(surface_total,na.rm=T)) %>% ungroup()
 
-house %>% select(MANZ_CCNCT,surface_mnz,surface_total)
-table(is.na(house$surface_total))
-house$surface_total <- ifelse(is.na(house$surface_total),house$surface_mnz,house$surface_total)
-table(is.na(house$surface_total))
+train %>% select(MANZ_CCNCT,surface_mnz,surface_total)
+table(is.na(train$surface_total))
+train$surface_total <- ifelse(is.na(house$surface_total),teain$surface_mnz,train$surface_total)
+table(is.na(train$surface_total))
 
 ###CENSO
 ##datos
@@ -139,18 +139,13 @@ table(is.na(house$surface_total))
 ###       vecinos espaciales
 
 ## obtener objeto sp
-new_house_sp <- new_house %>% st_buffer(20) %>% as_Spatial() # poligonos
+new_train_sp <- new_train %>% st_buffer(20) %>% as_Spatial() # poligonos
 ## obtener vecinos
-nb_house = poly2nb(pl=new_house_sp , queen=T) # opcion reina
+nb_train = poly2nb(pl=new_train_sp , queen=T) # opcion reina
 ## vecinos del inmueble 32
-nb_house[[32]]
-## visualizar
-leaflet() %>% addTiles() %>% 
-  addCircles(data=new_house[32,],col="red") %>% 
-  addCircles(data=new_house[nb_house[[32]],])
-## rooms
-new_house$rooms[32]
-new_house$rooms[nb_house[[32]]]
+#nb_house[[32]]
+
+
 
 #########################
 #dataframe to sf
