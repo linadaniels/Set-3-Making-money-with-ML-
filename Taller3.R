@@ -125,19 +125,17 @@ table(is.na(house$surface_total))
 
 ###CENSO
 ##datos
-censoant <- import("input/mnz_censo_2018.rds")
-censobog <- import("input/mnz_censo_2018.rds")
-censovalle <- import("input/mnz_censo_2018.rds")
-censo <- merge(censoant, merge(censobog, censovalle))
+#censoant <- import("input/mnz_censo_2018.rds")
+#censobog <- import("input/mnz_censo_2018.rds")
+#censovalle <- import("input/mnz_censo_2018.rds")
+#censo <- merge(censoant, merge(censobog, censovalle))
 ## construir covariables
-house <- left_join(house,censo,by=c("MANZ_CCNCT"="COD_DANE_ANM"))
+#house <- left_join(house,censo,by=c("MANZ_CCNCT"="COD_DANE_ANM"))
 
-table(is.na(house$rooms))
+#table(is.na(house$rooms))
 
-house$rooms <- ifelse(is.na(house$rooms),house$med_H_NRO_CUARTOS,house$rooms)
-table(is.na(house$rooms))
-
-
+#house$rooms <- ifelse(is.na(house$rooms),house$med_H_NRO_CUARTOS,house$rooms)
+#table(is.na(house$rooms))
 ###       vecinos espaciales
 
 ## obtener objeto sp
