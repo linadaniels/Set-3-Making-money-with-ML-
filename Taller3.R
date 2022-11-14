@@ -61,7 +61,7 @@ train$new_surface <- gsub(",",".",train$new_surface)
 train$new_surface <- as.numeric(train$new_surface)
 ## replace surfare var
 table(is.na(train$surface_total))
-house$surface_total <- ifelse(is.na(train$surface_total),train$surface_covered,train$surface_total)
+train$surface_total <- ifelse(is.na(train$surface_total),train$surface_covered,train$surface_total)
 table(is.na(train$surface_total))
 train$surface_total <- ifelse(is.na(train$surface_total),train$new_surface,train$surface_total)
 table(is.na(train$surface_total))
@@ -82,7 +82,7 @@ for (i in c("baño","baños","bano","banos","tocadores"," ","\n\n")){
 }
 ## replace bathroom var
 table(is.na(train$bathrooms))
-house$bathroom <- ifelse(is.na(train$bathrooms),train$new_bathroom,train$bathrooms)
+train$bathroom <- ifelse(is.na(train$bathrooms),train$new_bathroom,train$bathrooms)
 table(is.na(train$bathrooms))
 
 ###       VECINOS ESPACIALES
