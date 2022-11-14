@@ -83,9 +83,74 @@ table(is.na(train$bathroom))
 house$bathroom <- ifelse(is.na(train$bathroom),train$new_bathroom,train$bathroom)
 table(is.na(train$bathroom))
 
+###       VECINOS ESPACIALES
+##MGN
+# cargar manzanas
+mnz <- st_read("input/mgn/MGN_URB_MANZANA.shp") %>% select(MANZ_CCNCT) %>% .[,]
+mnz
+leaflet() %>% addTiles() %>% 
+  addPolygons(data=mnz , col="red") 
+## unir dos conjuntos de datos basados en la geometría
+house <- st_join(x=house , y=mnz)
+
+house %>% select(rooms,bedrooms,bathrooms,surface_total,MANZ_CCNCT)
+## Veamos la intuición primero
+new_house <- house[st_buffer(house[100,],200),]
+new_mnz <- mnz[new_house,]
+
+leaflet() %>% addTiles() %>%
+  addPolygons(data=new_mnz,col="red") %>%
+  addCircles(data=new_house)
+## unir dos conjuntos de datos basados en la distancia
+new_house <- st_join(x=new_house , y=new_mnz , join=st_nn , maxdist=20 , k=1 , progress=F)
+new_house %>% select(MANZ_CCNCT.x,MANZ_CCNCT.y)
+
+leaflet() %>% addTiles() %>% 
+  addPolygons(data=new_mnz , col="red" , label=new_mnz$MANZ_CCNCT) %>% 
+  addCircles(data=new_house , label=new_house$MANZ_CCNCT.y)
+## construir covariables
+house <- house %>% group_by() %>%
+  mutate(surface_mnz=mean(surface_total,na.rm=T)) %>% ungroup()
+
+house %>% select(MANZ_CCNCT,surface_mnz,surface_total)
+table(is.na(house$surface_total))
+house$surface_total <- ifelse(is.na(house$surface_total),house$surface_mnz,house$surface_total)
+table(is.na(house$surface_total))
+
+###       Censo
+## load data
+censo <- import("input/mnz_censo_2018.rds")
+censo
+## construir covariables
+house <- left_join(house,censo,by=c("MANZ_CCNCT"="COD_DANE_ANM"))
+
+table(is.na(house$rooms))
+
+house$rooms <- ifelse(is.na(house$rooms),house$med_H_NRO_CUARTOS,house$rooms)
+table(is.na(house$rooms))
+
+
+###       vecinos espaciales
+
+## obtener objeto sp
+new_house_sp <- new_house %>% st_buffer(20) %>% as_Spatial() # poligonos
+## obtener vecinos
+nb_house = poly2nb(pl=new_house_sp , queen=T) # opcion reina
+## vecinos del inmueble 32
+nb_house[[32]]
+## visualizar
+leaflet() %>% addTiles() %>% 
+  addCircles(data=new_house[32,],col="red") %>% 
+  addCircles(data=new_house[nb_house[[32]],])
+## rooms
+new_house$rooms[32]
+new_house$rooms[nb_house[[32]]]
 
 
 
+
+
+#########################3
 #dataframe to sf
 train <- st_as_sf(x = train, ## datos
                   coords=c("lon","lat"), ## coordenadas
