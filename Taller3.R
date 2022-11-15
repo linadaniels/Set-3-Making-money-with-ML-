@@ -33,6 +33,13 @@ p_load(tidyverse,rio,skimr,
        tmaptools, ## geocodificar
        ggsn, ## map scale bar 
        osmdata) ## packages with census data
+library(vtable)
+library(pacman)
+p_load(tidyverse, ggplot2, doParallel, rattle, MLmetrics,
+       janitor, fastDummies, tidymodels, caret)
+library(AER)
+library(ranger)
+
 #cargar bases
 test <- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/test.Rds")
 train<- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/train.Rds")
@@ -211,7 +218,7 @@ test <- st_as_sf( x=test,
                    crs=4326)
 class(test)
 class(mnz)
-test <- st_join(x=train, y=mnz)
+test <- st_join(x=test, y=mnz)
 test %>% select(rooms,bedrooms,bathrooms,surface_total,MANZ_CCNCT)
 
 # intucion
@@ -539,12 +546,75 @@ test$dist_parque = min_dist_parque_cal
 test$dist_mall = min_mall_cal
 test$dist_supermarket = min_supermarket_cal
 
+#Guardar bases
+write_rds(train, "train_final.rds")
+write_rds(test, "test_final.rds")
+
 
 ###       Estadisticas descriptivas test
-#str_test<-str(te_hog_d)
-#sumtable(te_hog_d)
+str_train<-str(train)
+sumtable(train)
 #       exportamos
-#data(te_hog_d)
-#sumtable(te_hog_d)
-#vartable <- vtable(te_hog_d,out='return')
+data(train)
+sumtable(train)
+vartable <- vtable(train,out='return')
 
+str_test<-str(test)
+sumtable(test)
+#       exportamos
+data(test)
+sumtable(test)
+vartable <- vtable(test,out='return')
+
+#Predicción####
+
+
+# Dividimos la base en train y test
+set.seed(666)
+train_index <- createDataPartition(train$price, p = .8)$Resample1
+train_boost <- train[train_index,]
+test_boost <- train[-train_index,]
+
+# Creamos las particiones para hacer validación cruzada
+cv5 <- trainControl(number = 5, method = "cv")
+cv3 <- trainControl(number = 3, method = "cv")
+
+#Random Forest
+# Creamos una grilla para tunear el random forest
+tunegrid_rf <- expand.grid(mtry = c(3, 5, 10), 
+                           min.node.size = c(10, 30, 50,
+                                             70, 100),
+                           splitrule = "variance")
+
+n_cores <- detectCores()
+print(paste("Mi PC tiene", n_cores, "nucleos"))
+
+cl <- makePSOCKcluster(n_cores - 5) 
+registerDoParallel(cl)
+
+modelo2 <- train(price ~ surface_total + bedrooms + dist_cbd + dist_bus
+                 + dist_parque + dist_mall + dist_supermarket,
+                 data = train_boost, 
+                 method = "ranger", 
+                 trControl = cv5,
+                 metric = 'RMSE', 
+                 tuneGrid = tunegrid_rf)
+
+
+# Comando automático (a mi no me gusta)
+plot(modelo2)
+
+y_hat_insample2 = predict(modelo2, newdata = train_boost)
+y_hat_outsample2 = predict(modelo2, newdata = test_boost)
+
+MAE(y_hat_insample2,train_boost$price)
+MAPE(y_hat_insample2,train_boost$price)
+MAE(y_hat_outsample2,test_boost$price)
+MAPE(y_hat_outsample2,test_boost$price)
+
+precio_predicho_cali = predict(modelo2, newdata = test)
+test <- cbind(test, precio_predicho_cali)
+
+cali <- test$property_id
+cali <- cbind(cali, test$precio_predicho_cali)
+write.xlsx(cali, file = "cali.xls")
