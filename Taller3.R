@@ -27,6 +27,12 @@ p_load(tidyverse,rio,skimr,viridis,
        nngeo, ## st_nn function
        spdep, ## Construct neighbours list from polygon list 
        osmdata) ## Get OSM's data
+p_load(tidyverse,rio,skimr,
+       sf, ## datos espaciales
+       leaflet, ## visualizaciones
+       tmaptools, ## geocodificar
+       ggsn, ## map scale bar 
+       osmdata) ## packages with census data
 #cargar bases
 test <- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/test.Rds")
 train<- readRDS("C:/Users/linit/Documents/semestre 8/Big Data/dataPS3/dataPS3/train.Rds")
