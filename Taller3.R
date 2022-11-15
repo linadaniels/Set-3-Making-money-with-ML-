@@ -85,6 +85,56 @@ table(is.na(train$bathrooms))
 train$bathroom <- ifelse(is.na(train$bathrooms),train$new_bathroom,train$bathrooms)
 table(is.na(train$bathrooms))
 
+
+## ahora con test
+class(test)
+skim(test)
+leaflet() %>% addTiles() %>% addCircleMarkers(data=test)
+str_to_lower(string = test$description)
+test <- test %>% 
+  mutate(new_surface = str_extract(string=description , pattern= x))
+table(test$new_surface) %>% sort() %>% head()
+
+test$new_surface <- NA
+for (i in c("mts","m2","mt2","mts2","metros","cuadrado","mtro","mtr2")){
+  test <- test %>% 
+    mutate(new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x1,i)),new_surface),
+           new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface),
+           new_surface = ifelse(is.na(new_surface)==T,str_extract(string=description , pattern=paste0(x3,i)),new_surface))
+}
+
+for (i in c("mts","m2","mt2","mts2","metros","cuadrad","mtro","mtr2"," ","\n\n")){
+  test$new_surface <- gsub(i,"",test$new_surface)
+}
+
+test$new_surface <- gsub(",",".",test$new_surface)
+test$new_surface <- as.numeric(test$new_surface)
+## replace surfare var
+table(is.na(test$surface_total))
+test$surface_total <- ifelse(is.na(test$surface_total),test$surface_covered,test$surface_total)
+table(is.na(test$surface_total))
+test$surface_total <- ifelse(is.na(test$surface_total),test$new_surface,test$surface_total)
+table(is.na(test$surface_total))
+
+#ahora para los baños
+
+test$new_bathroom <- NA
+for (i in c("baño","baños","bano","banos","tocadores")){
+  test <- test %>% 
+    mutate(new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x1,i)),new_surface),
+           new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x2,i)),new_surface),
+           new_bathroom = ifelse(is.na(new_bathroom)==T,str_extract(string=description , pattern=paste0(x3,i)),new_surface)
+    )
+}
+
+for (i in c("baño","baños","bano","banos","tocadores"," ","\n\n")){
+  test$new_bathroom <- gsub(i,"",test$new_bathroom)
+}
+## replace bathroom var
+table(is.na(test$bathrooms))
+test$bathroom <- ifelse(is.na(test$bathrooms),test$new_bathroom,test$bathrooms)
+table(is.na(test$bathrooms))
+
 ###       VECINOS ESPACIALES
 ## train MGN
 # cargar manzanas
@@ -122,7 +172,7 @@ train <- train %>% group_by() %>%
 
 train %>% select(MANZ_CCNCT,surface_mnz,surface_total)
 table(is.na(train$surface_total))
-train$surface_total <- ifelse(is.na(house$surface_total),train$surface_mnz,train$surface_total)
+train$surface_total <- ifelse(is.na(train$surface_total),train$surface_mnz,train$surface_total)
 table(is.na(train$surface_total))
 
 ###CENSO
@@ -178,7 +228,7 @@ test <- test %>% group_by() %>%
 
 test %>% select(MANZ_CCNCT,surface_mnz,surface_total)
 table(is.na(test$surface_total))
-test$surface_total <- ifelse(is.na(house$surface_total),test$surface_mnz,test$surface_total)
+test$surface_total <- ifelse(is.na(test$surface_total),test$surface_mnz,test$surface_total)
 table(is.na(test$surface_total))
 
 
